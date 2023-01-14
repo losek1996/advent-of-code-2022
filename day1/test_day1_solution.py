@@ -2,7 +2,10 @@ import os
 
 import pytest
 
-from day1.solution import get_calories_summed_up_by_elfs, get_top_n_calories_summed_up
+from day1.day1_solution import (
+    get_calories_summed_up_by_elfs,
+    get_top_n_calories_summed_up,
+)
 from read_data import read_raw_data
 
 DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + "/data/"
