@@ -15,7 +15,7 @@ COUNT_CHARS_IN_FRONT_OF_FIRST_MARKER_TEST_DATA = [
     COUNT_CHARS_IN_FRONT_OF_FIRST_MARKER_TEST_DATA,
 )
 def test_count_chars_in_front_of_first_marker(
-    word, num_of_unique_chars_in_row, expected_result
+    word: str, num_of_unique_chars_in_row: int, expected_result: int
 ):
     assert (
         count_chars_in_front_of_first_marker(word, num_of_unique_chars_in_row)

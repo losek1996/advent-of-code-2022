@@ -9,8 +9,6 @@ from day5.day5_solution import (
     Queue,
     find_num_of_stacks,
     find_empty_raw_idx,
-    parse_initial_state,
-    parse_moves,
 )
 from read_data import read_raw_data
 
@@ -87,5 +85,5 @@ def test_find_num_of_stacks():
 
 
 @pytest.mark.parametrize("data", ["test_data.txt"], indirect=True)
-def test_find_empty_raw_idx(data):
+def test_find_empty_raw_idx(data: list[str]):
     assert find_empty_raw_idx(data) == 4
