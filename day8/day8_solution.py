@@ -67,4 +67,3 @@ def count_visible_neighbors(tree_height: int, neighbors_heights: list[int]) -> i
 def read_and_parse_data(filename: str) -> TreesHeightsMap:
     with open(filename, "r") as f:
         return [[int(digit) for digit in line.strip()] for line in f.readlines()]
-
