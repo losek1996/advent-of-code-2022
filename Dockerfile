@@ -8,5 +8,5 @@ ENV PROJECT_DIR /project
 ADD requirements.txt .
 RUN pip install -r requirements.txt
 
-WORKDIR $PROJECT_DIR/
+WORKDIR $PROJECT_DIR/solutions
 ADD . $PROJECT_DIR
