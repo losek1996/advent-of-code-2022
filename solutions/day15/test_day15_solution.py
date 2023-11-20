@@ -30,7 +30,6 @@ def test_parse_data():
                 x=1581951,
                 y=2271709,
             ),
-            distance_from_nearest_beacon=591336,
         )
     ]
 
