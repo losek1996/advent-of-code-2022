@@ -11,7 +11,10 @@ class Point(BaseModel):
 class Sensor(BaseModel):
     coordinates: Point
     nearest_beacon: Point
-    distance_from_nearest_beacon: int = 0
+
+    @property
+    def distance_from_nearest_beacon(self) -> int:
+        return get_manhattan_distance(self.nearest_beacon, self.coordinates)
 
 
 def count_positions_where_beacon_can_not_be_present(
@@ -52,8 +55,8 @@ def get_reachable_points_x_coordinate(
         return []
 
     return [
-        i
-        for i in range(
+        x
+        for x in range(
             -max_distance + source_point.x, max_distance + source_point.x + 1
         )
     ]
@@ -74,9 +77,6 @@ def parse_data(data: list[str]) -> list[Sensor]:
                 x=int(matched_coordinates.group(3)),
                 y=int(matched_coordinates.group(4)),
             ),
-        )
-        sensor.distance_from_nearest_beacon = get_manhattan_distance(
-            sensor.coordinates, sensor.nearest_beacon
         )
         sensors.append(sensor)
 
