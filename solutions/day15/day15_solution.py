@@ -130,7 +130,7 @@ def get_reachable_points_x_coordinate(
 
 def can_be_additional_beacon_position(beacon_candidate: Point, sensor: Sensor) -> bool:
     """
-    Beacon candidate can't have smaller Manhattan distance to sensor than the sensor closest beacon
+    Beacon candidate can't have smaller Manhattan distance to sensor than the sensor closest beacon.
     """
     distance_to_sensor = get_manhattan_distance(beacon_candidate, sensor.coordinates)
     return distance_to_sensor > sensor.distance_from_nearest_beacon
