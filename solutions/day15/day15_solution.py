@@ -112,7 +112,6 @@ def get_manhattan_distance(point_a: Point, point_b: Point) -> int:
 def get_sensor_x_coordinates_where_beacon_can_not_be_present(
     sensor: Sensor, target_y: int
 ) -> list[int]:
-    "Manhattan distance"
     source_point_x, source_point_y = sensor.coordinates
     max_distance = sensor.distance_from_nearest_beacon
 
