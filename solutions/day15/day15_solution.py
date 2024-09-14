@@ -33,7 +33,7 @@ def count_positions_where_beacon_can_not_be_present(
             nearest_beacon_x, nearest_beacon_y = sensor.nearest_beacon
             if nearest_beacon_y == target_y:
                 beacons_x_coordinate.append(nearest_beacon_x)
-                return beacons_x_coordinate
+        return beacons_x_coordinate
 
     positions_list: list[list[int]] = [
         get_reachable_points_x_coordinate(
