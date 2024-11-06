@@ -64,9 +64,13 @@ def establish_dir_size(
     record: LsTerminalCommand, dirs_with_size: dict[str, int]
 ) -> int:
     return sum(
-        dirs_with_size[establish_current_dir(record.current_dir, cd_argument=raw[4:])]
-        if raw.startswith("dir")
-        else int(raw.split()[0])
+        (
+            dirs_with_size[
+                establish_current_dir(record.current_dir, cd_argument=raw[4:])
+            ]
+            if raw.startswith("dir")
+            else int(raw.split()[0])
+        )
         for raw in record.output
     )
 
