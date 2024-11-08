@@ -14,6 +14,7 @@ MAX_NUMBER_OF_CONSIDERED_PATHS = 33 * 10**6
 PATH_LENGTH = 7  # how many nodes will be included in path
 START_NODE = "AA"
 MAX_NUMBER_OF_CONSIDERED_NODES = 16
+MINIMUM_PRESSURE_RELEASED_FOR_FIRST_PATH = 500  # when we have 2 parallel paths first path is included when releases pressure above threshold
 
 
 def parse_data(data: list[str]) -> tuple[ValveWithFlowRate, ValveWithNeighbors]:
@@ -67,6 +68,9 @@ def get_most_pressure_possible_to_release(
             nodes_to_visit=nodes_to_include_in_output,
             first_path_length=path_length,
             second_path_length=second_path_length,
+            shortest_paths_between_nodes=shortest_paths,
+            valve_with_flow_rate=valve_with_flow_rate,
+            minimum_pressure_released_for_first_path=MINIMUM_PRESSURE_RELEASED_FOR_FIRST_PATH,
         )
         return _get_max_released_pressure_for_2_parallel_paths(
             max_number_of_considered_paths,
@@ -232,7 +236,12 @@ def generate_valves_paths_permutations(
 
 
 def generate_2_parallel_valves_paths_permutations(
-    nodes_to_visit: list[Node], first_path_length: int, second_path_length: int
+    nodes_to_visit: list[Node],
+    first_path_length: int,
+    second_path_length: int,
+    shortest_paths_between_nodes: dict[Path, int],
+    valve_with_flow_rate: ValveWithFlowRate,
+    minimum_pressure_released_for_first_path: int,
 ) -> list[tuple[list[Node], list[Node]]]:
     output_permutations = []
     first_path_permutations = generate_valves_paths_permutations(
@@ -240,6 +249,13 @@ def generate_2_parallel_valves_paths_permutations(
     )
 
     for first_path in first_path_permutations:
+        released_pressure = get_released_pressure_for_path(
+            first_path, shortest_paths_between_nodes, valve_with_flow_rate, 26, 1
+        )
+        if (
+            released_pressure < minimum_pressure_released_for_first_path
+        ):  # we reduce search space as we assume both paths will reduce pressure by amount higher than minimum_pressure_released_for_first_path
+            continue
         nodes_for_second_path = [
             node for node in nodes_to_visit if node not in first_path[1:]
         ]
