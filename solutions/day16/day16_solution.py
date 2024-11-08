@@ -11,7 +11,7 @@ type Node = str  # e.g. if we have node A, it will be A
 TIME_TO_OPEN_VALVE = 1
 TIME_TO_VOLCANO_ERUPTION = 30
 MAX_NUMBER_OF_CONSIDERED_PATHS = 5 * 10**6
-PATH_LENGTH = 7  # how many nodes will be included in path
+PATH_LENGTH = 6  # how many nodes will be included in path
 START_NODE = "AA"
 
 

@@ -11,6 +11,8 @@ from solutions.day16.day16_solution import (
     Node,
     get_most_pressure_possible_to_release,
     MAX_NUMBER_OF_CONSIDERED_PATHS,
+    PATH_LENGTH,
+    START_NODE,
 )
 from solutions.read_data import read_raw_data_without_spaces
 
@@ -70,7 +72,7 @@ def test_get_shortest_paths_between_all_nodes__returns_shortest_paths_between_al
 
 @pytest.mark.parametrize(
     "parsed_data, start_node, path_length, max_number_of_considered_paths, expected_released_pressure",
-    [("test_data.txt", "AA", 6, MAX_NUMBER_OF_CONSIDERED_PATHS, 1651)],
+    [("test_data.txt", START_NODE, PATH_LENGTH, MAX_NUMBER_OF_CONSIDERED_PATHS, 1651)],
     indirect=["parsed_data"],
 )
 def test_get_most_pressure_possible_to_release_releases_max_possible_pressure(
