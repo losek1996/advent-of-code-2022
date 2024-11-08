@@ -53,10 +53,10 @@ def get_most_pressure_possible_to_release(
     )
 
     max_released_pressure = 0
-    shuffle(
-        valves_paths_permutations
-    )  # probabilistic approach if search space is too big
-    for path in valves_paths_permutations[:max_number_of_considered_paths]:
+    shuffle(valves_paths_permutations)
+    for path in valves_paths_permutations[
+        :max_number_of_considered_paths
+    ]:  # probabilistic approach if search space is too big
         released_pressure = get_released_pressure_for_path(
             path,
             shortest_paths,
