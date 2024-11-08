@@ -13,6 +13,7 @@ TIME_TO_VOLCANO_ERUPTION = 30
 MAX_NUMBER_OF_CONSIDERED_PATHS = 33 * 10**6
 PATH_LENGTH = 7  # how many nodes will be included in path
 START_NODE = "AA"
+MAX_NUMBER_OF_CONSIDERED_NODES = 16
 
 
 def parse_data(data: list[str]) -> tuple[ValveWithFlowRate, ValveWithNeighbors]:
@@ -41,17 +42,60 @@ def get_most_pressure_possible_to_release(
     valve_with_flow_rate: ValveWithFlowRate,
     path_length: int,
     max_number_of_considered_paths: int,
+    max_number_of_considered_nodes: int,
+    time_to_volcano_eruption: int,
+    two_parallel_paths_allowed: bool,
+    second_path_length: int | None,
 ):
-    nodes_to_include_in_output = [start_node] + get_all_nodes_with_non_zero_flow_rate(
-        valve_with_flow_rate
+    """
+    I implemented brute force where it's possible to reduce search space using multiple parameters like:
+    max_number_of_considered_nodes -> to limit search to only most profitable nodes
+    max_number_of_considered_paths -> probabilistic approach where not all paths are considered
+    path_length -> it searches only paths with given length
+    """
+    nodes_to_include_in_output = [start_node] + get_top_n_nodes_with_highest_flow_rate(
+        valve_with_flow_rate,
+        max_number_of_considered_nodes,
+        start_node_to_exclude=start_node,
     )
     shortest_paths = get_shortest_paths_between_all_nodes(
         valve_with_neighbors, nodes_to_include_in_output
     )
-    valves_paths_permutations = generate_all_valves_paths_permutations(
+
+    if two_parallel_paths_allowed:
+        valves_paths_permutations = generate_2_parallel_valves_paths_permutations(
+            nodes_to_visit=nodes_to_include_in_output,
+            first_path_length=path_length,
+            second_path_length=second_path_length,
+        )
+        return _get_max_released_pressure_for_2_parallel_paths(
+            max_number_of_considered_paths,
+            shortest_paths,
+            valve_with_flow_rate,
+            valves_paths_permutations,
+            time_to_volcano_eruption,
+        )
+
+    valves_paths_permutations = generate_valves_paths_permutations(
         nodes_to_visit=nodes_to_include_in_output, path_length=path_length
     )
 
+    return _get_max_released_pressure(
+        max_number_of_considered_paths,
+        shortest_paths,
+        valve_with_flow_rate,
+        valves_paths_permutations,
+        time_to_volcano_eruption,
+    )
+
+
+def _get_max_released_pressure(
+    max_number_of_considered_paths: int,
+    shortest_paths: dict[Path, int],
+    valve_with_flow_rate: dict[Node, int],
+    valves_paths_permutations: list[list[Node]],
+    time_to_volcano_eruption: int,
+) -> int:
     max_released_pressure = 0
     shuffle(valves_paths_permutations)
     for path in valves_paths_permutations[
@@ -61,9 +105,35 @@ def get_most_pressure_possible_to_release(
             path,
             shortest_paths,
             valve_with_flow_rate,
-            TIME_TO_VOLCANO_ERUPTION,
+            time_to_volcano_eruption,
             TIME_TO_OPEN_VALVE,
         )
+        if released_pressure > max_released_pressure:
+            max_released_pressure = released_pressure
+    return max_released_pressure
+
+
+def _get_max_released_pressure_for_2_parallel_paths(
+    max_number_of_considered_paths: int,
+    shortest_paths: dict[Path, int],
+    valve_with_flow_rate: dict[Node, int],
+    valves_paths_permutations: list[tuple[list[Node], list[Node]]],
+    time_to_volcano_eruption: int,
+):
+    max_released_pressure = 0
+    shuffle(valves_paths_permutations)
+    for first_path, second_path in valves_paths_permutations[
+        :max_number_of_considered_paths
+    ]:  # probabilistic approach if search space is too big
+        released_pressure = 0
+        for path in [first_path, second_path]:
+            released_pressure += get_released_pressure_for_path(
+                path,
+                shortest_paths,
+                valve_with_flow_rate,
+                time_to_volcano_eruption,
+                TIME_TO_OPEN_VALVE,
+            )
         if released_pressure > max_released_pressure:
             max_released_pressure = released_pressure
     return max_released_pressure
@@ -138,18 +208,20 @@ def get_shortest_distance_to_all_nodes(
     return shortest_paths
 
 
-def get_all_nodes_with_non_zero_flow_rate(
+def get_top_n_nodes_with_highest_flow_rate(
     valve_with_flow_rate: ValveWithFlowRate,
+    max_number_of_nodes: int,
+    start_node_to_exclude: Node,
 ) -> list[Node]:
-    nodes_with_non_zero_flow_rate: list[Node] = []
-    for valve_id, flow_rate in valve_with_flow_rate.items():
-        if flow_rate > 0:
-            nodes_with_non_zero_flow_rate.append(valve_id)
+    """We exclude node AA as it's start node and it's obligatory."""
+    valve_with_flow_rate.pop(start_node_to_exclude)
+    valve_with_flow_rate = sorted(
+        valve_with_flow_rate.items(), key=lambda item: item[1], reverse=True
+    )
+    return [valve_id for valve_id, _ in valve_with_flow_rate[:max_number_of_nodes]]
 
-    return nodes_with_non_zero_flow_rate
 
-
-def generate_all_valves_paths_permutations(
+def generate_valves_paths_permutations(
     nodes_to_visit: list[Node], path_length: int
 ) -> list[list[Node]]:
     start_node = nodes_to_visit[0]
@@ -157,6 +229,27 @@ def generate_all_valves_paths_permutations(
         [start_node] + list(path)
         for path in permutations(nodes_to_visit[1:], path_length)
     ]
+
+
+def generate_2_parallel_valves_paths_permutations(
+    nodes_to_visit: list[Node], first_path_length: int, second_path_length: int
+) -> list[tuple[list[Node], list[Node]]]:
+    output_permutations = []
+    first_path_permutations = generate_valves_paths_permutations(
+        nodes_to_visit, first_path_length
+    )
+
+    for first_path in first_path_permutations:
+        nodes_for_second_path = [
+            node for node in nodes_to_visit if node not in first_path[1:]
+        ]
+        second_path_permutations = generate_valves_paths_permutations(
+            nodes_for_second_path, second_path_length
+        )
+        for second_path in second_path_permutations:
+            output_permutations.append((first_path, second_path))
+
+    return output_permutations
 
 
 def generate_path(node_a: Node, node_b: Node) -> Path:
