@@ -47,22 +47,6 @@ def test_parse_data():
 
 
 @pytest.mark.parametrize(
-    "parsed_data, target_y, expected_result",
-    [("test_data.txt", 10, 26)],
-    indirect=["parsed_data"],
-)
-def test_count_positions_where_beacon_can_not_be_present(
-    parsed_data: list[Sensor], target_y: int, expected_result: int
-):
-    assert (
-        count_positions_where_beacon_can_not_be_present(
-            sensors=parsed_data, target_y=target_y
-        )
-        == expected_result
-    )
-
-
-@pytest.mark.parametrize(
     "sensor, expected_positions",
     [
         (

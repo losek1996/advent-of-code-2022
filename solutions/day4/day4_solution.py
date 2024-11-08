@@ -119,6 +119,3 @@ if __name__ == "__main__":
         Assignment(first_section_idx=8, last_section_idx=9),
         Assignment(first_section_idx=2, last_section_idx=5),
     )
-    data = read_data("data.txt")
-    print(count_fully_contains_other(data))
-    print(count_overlaps_other(data))

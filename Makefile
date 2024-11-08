@@ -8,3 +8,5 @@ run:
 	docker compose run tests bash
 black:
 	docker compose run base_build bash -c 'black .'
+format:
+	docker compose run base_build bash -c 'black . && flake8 --ignore=E,W .'

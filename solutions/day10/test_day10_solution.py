@@ -24,11 +24,6 @@ def test_count_combined_signal_strength(register: dict[int, int]):
 
 
 @pytest.mark.parametrize("register", ["test_data.txt"], indirect=True)
-def test_count_combined_signal_strength(register: dict[int, int]):
-    assert count_combined_signal_strength(register) == 13140
-
-
-@pytest.mark.parametrize("register", ["test_data.txt"], indirect=True)
 def test_produce_visualization(register: dict[int, int]):
     expected_visualization = [
         "##..##..##..##..##..##..##..##..##..##..",
